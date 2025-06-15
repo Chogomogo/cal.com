@@ -1,6 +1,7 @@
 # https://playwright.dev/docs/test-sharding#merging-reports-from-multiple-shards
 on:
   workflow_call:
+  workflow_dispatch:
 jobs:
   merge-reports:
     runs-on: ubuntu-latest
