@@ -1,4 +1,4 @@
-name: E2E Embed React tests and booking flow (for non-embed as well)
+name: SH-E2E Embed React tests and booking flow (for non-embed as well)
 on:
   workflow_call:
   workflow_dispatch:
@@ -46,7 +46,7 @@ jobs:
   e2e-embed:
     timeout-minutes: 20
     name: E2E Embed React
-    runs-on: ubuntu-latest
+    runs-on: self-hosted
     services:
       postgres:
         image: postgres:13

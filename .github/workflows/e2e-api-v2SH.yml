@@ -1,4 +1,4 @@
-name: E2E
+name: E2E SELF HOSTED
 on:
   workflow_call:
   workflow_dispatch:
@@ -27,7 +27,7 @@ jobs:
   e2e:
     timeout-minutes: 20
     name: E2E API v2
-    runs-on: ubuntu-latest
+    runs-on: self-hosted
     services:
       postgres:
         image: postgres:13

@@ -1,4 +1,4 @@
-name: E2E Embed React tests and booking flow (for non-embed as well)
+name: E2E Embed Core tests and booking flow (for non-embed as well)
 on:
   workflow_call:
   workflow_dispatch:
@@ -45,8 +45,8 @@ env:
 jobs:
   e2e-embed:
     timeout-minutes: 20
-    name: E2E Embed React
-    runs-on: ubuntu-latest
+    name: E2E Embed Core
+    runs-on: self-hosted
     services:
       postgres:
         image: postgres:13
@@ -64,6 +64,14 @@ jobs:
           --health-retries 5
         ports:
           - 5432:5432
+      mailhog:
+        image: mailhog/mailhog:v1.0.1
+        credentials:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+        ports:
+          - 8025:8025
+          - 1025:1025
     strategy:
       fail-fast: false
 
@@ -79,12 +87,10 @@ jobs:
       - uses: ./.github/actions/cache-db
       - uses: ./.github/actions/cache-build
       - name: Run Tests
-        run: |
-          yarn e2e:embed-react
-          yarn workspace @calcom/embed-react packaged:tests
+        run: yarn e2e:embed
       - name: Upload Test Results
         if: ${{ always() }}
         uses: actions/upload-artifact@v4
         with:
-          name: blob-report-embed-react
+          name: blob-report-embed-core
           path: blob-report

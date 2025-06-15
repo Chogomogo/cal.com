@@ -1,4 +1,4 @@
-name: E2E Embed React tests and booking flow (for non-embed as well)
+name: E2E App Store Tests and Self Hosted
 on:
   workflow_call:
   workflow_dispatch:
@@ -43,10 +43,10 @@ env:
   TURBO_TOKEN: ${{ secrets.TURBO_TOKEN }}
   TURBO_TEAM: ${{ secrets.TURBO_TEAM }}
 jobs:
-  e2e-embed:
+  e2e-app-store:
     timeout-minutes: 20
-    name: E2E Embed React
-    runs-on: ubuntu-latest
+    name: E2E App Store
+    runs-on: self-hosted
     services:
       postgres:
         image: postgres:13
@@ -64,6 +64,14 @@ jobs:
           --health-retries 5
         ports:
           - 5432:5432
+      mailhog:
+        image: mailhog/mailhog:v1.0.1
+        credentials:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+        ports:
+          - 8025:8025
+          - 1025:1025
     strategy:
       fail-fast: false
 
@@ -77,14 +85,19 @@ jobs:
       - uses: ./.github/actions/yarn-install
       - uses: ./.github/actions/yarn-playwright-install
       - uses: ./.github/actions/cache-db
+        env:
+          DATABASE_URL: ${{ secrets.CI_DATABASE_URL }}
+          DATABASE_DIRECT_URL: ${{ secrets.CI_DATABASE_URL }}
+          E2E_TEST_CALCOM_QA_EMAIL: ${{ secrets.E2E_TEST_CALCOM_QA_EMAIL }}
+          E2E_TEST_CALCOM_QA_PASSWORD: ${{ secrets.E2E_TEST_CALCOM_QA_PASSWORD }}
+          E2E_TEST_CALCOM_QA_GCAL_CREDENTIALS: ${{ secrets.E2E_TEST_CALCOM_QA_GCAL_CREDENTIALS }}
+          E2E_TEST_CALCOM_GCAL_KEYS: ${{ secrets.E2E_TEST_CALCOM_GCAL_KEYS }}
       - uses: ./.github/actions/cache-build
       - name: Run Tests
-        run: |
-          yarn e2e:embed-react
-          yarn workspace @calcom/embed-react packaged:tests
+        run: yarn e2e:app-store
       - name: Upload Test Results
         if: ${{ always() }}
         uses: actions/upload-artifact@v4
         with:
-          name: blob-report-embed-react
+          name: blob-report-app-store
           path: blob-report
